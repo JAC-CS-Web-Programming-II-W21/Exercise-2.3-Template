@@ -80,8 +80,8 @@ Just as last time, the models and database have been provided, so you don't have
 
 | HTTP Method | Route           | Controller | Controller Method | Model Method | Database Method |
 | ----------- | --------------- | ---------- | ----------------- | ------------ | --------------- |
-| `GET`       | `/`             | Home       |                   |              |                 |
-| `ANY`       | `/{garbage}`    | Error      |                   |              |                 |
+| `GET`       | `/`             | Home       | `home`            |              |                 |
+| `ANY`       | `/{garbage}`    | Error      | `error`           |              |                 |
 | `POST`      | `/pokemon`      | Pokemon    | `new`             | `create`     | `insert`        |
 | `GET`       | `/pokemon`      | Pokemon    | `list`            | `findAll`    | `select`        |
 | `GET`       | `/pokemon/{id}` | Pokemon    | `show`            | `findById`   | `select`        |
