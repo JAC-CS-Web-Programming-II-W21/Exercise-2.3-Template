@@ -78,7 +78,7 @@ The test suites for this exercise are very similar to the last exercise, with th
 
 Just as last time, the models and database have been provided, so you don't have to worry about those. Your job is to write four classes (`Controller`, `PokemonController`, `HomeController`, and `ErrorController`) that will handle the following requests:
 
-| HTTP Method | Route           | Controller | Controller Method | Model Method | Database Method |
+| HTTP Method | Path            | Controller | Controller Method | Model Method | Database Method |
 | ----------- | --------------- | ---------- | ----------------- | ------------ | --------------- |
 | `GET`       | `/`             | Home       | `home`            |              |                 |
 | `ANY`       | `/{garbage}`    | Error      | `error`           |              |                 |
