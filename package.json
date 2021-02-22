@@ -12,12 +12,14 @@
 		"testEnvironment": "node",
 		"verbose": true,
 		"testTimeout": 600000,
-		"rootDir": "./tests"
+		"rootDir": "./tests",
+		"testSequencer": "./TestSequencer.js"
 	},
 	"keywords": [],
 	"author": "",
 	"license": "ISC",
 	"dependencies": {
+		"@jest/test-sequencer": "^26.6.3",
 		"@types/node": "^14.14.20",
 		"dotenv": "^8.2.0",
 		"mysql2": "^2.2.5"

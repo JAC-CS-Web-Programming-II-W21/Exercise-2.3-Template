@@ -42,7 +42,7 @@ const makeHttpRequest = (method, path, data = {}) => {
 			response.on('data', (chunk) => {
 				body += chunk;
 			});
-			response.on('end', () => resolve(JSON.parse(body)));
+			response.on('end', () => resolve([response.statusCode, JSON.parse(body)]));
 		});
 
 		request.on('error', (err) => reject(err));
@@ -52,46 +52,46 @@ const makeHttpRequest = (method, path, data = {}) => {
 };
 
 test('Homepage was retrieved successfully.', async () => {
-	const response = await makeHttpRequest('GET', '/');
+	const [statusCode, response] = await makeHttpRequest('GET', '/');
 
+	expect(statusCode).toBe(200);
 	expect(Object.keys(response).includes('statusCode')).toBe(true);
 	expect(Object.keys(response).includes('message')).toBe(true);
 	expect(Object.keys(response).includes('payload')).toBe(true);
-	expect(response.statusCode).toBe(200);
 	expect(response.message).toBe('Homepage!');
 	expect(response.payload).toMatchObject({});
 });
 
 test('Invalid path returned error.', async () => {
-	const response = await makeHttpRequest('GET', '/digimon');
+	const [statusCode, response] = await makeHttpRequest('GET', '/digimon');
 
+	expect(statusCode).toBe(404);
 	expect(Object.keys(response).includes('statusCode')).toBe(true);
 	expect(Object.keys(response).includes('message')).toBe(true);
 	expect(Object.keys(response).includes('payload')).toBe(true);
-	expect(response.statusCode).toBe(404);
-	expect(response.message).toBe('Invalid request!');
+	expect(response.message).toBe('Invalid request path!');
 	expect(response.payload).toMatchObject({});
 });
 
 test('Invalid request method returned error.', async () => {
-	const response = await makeHttpRequest('PATCH', '/pokemon');
+	const [statusCode, response] = await makeHttpRequest('PATCH', '/pokemon');
 
+	expect(statusCode).toBe(405);
 	expect(Object.keys(response).includes('statusCode')).toBe(true);
 	expect(Object.keys(response).includes('message')).toBe(true);
 	expect(Object.keys(response).includes('payload')).toBe(true);
-	expect(response.statusCode).toBe(404);
-	expect(response.message).toBe('Invalid request!');
+	expect(response.message).toBe('Invalid request method!');
 	expect(response.payload).toMatchObject({});
 });
 
 test('Pokemon was created successfully.', async () => {
 	const { name, type } = generatePokemonData();
-	const response = await makeHttpRequest('POST', '/pokemon', { name, type });
+	const [statusCode, response] = await makeHttpRequest('POST', '/pokemon', { name, type });
 
+	expect(statusCode).toBe(200);
 	expect(Object.keys(response).includes('statusCode')).toBe(true);
 	expect(Object.keys(response).includes('message')).toBe(true);
 	expect(Object.keys(response).includes('payload')).toBe(true);
-	expect(response.statusCode).toBe(200);
 	expect(response.message).toBe('Pokemon created successfully!');
 	expect(Object.keys(response.payload).includes('id')).toBe(true);
 	expect(Object.keys(response.payload).includes('name')).toBe(true);
@@ -110,12 +110,12 @@ test('All Pokemon were found.', async () => {
 	await Pokemon.create(name2, type2);
 	await Pokemon.create(name3, type3);
 
-	const response = await makeHttpRequest('GET', '/pokemon');
+	const [statusCode, response] = await makeHttpRequest('GET', '/pokemon');
 
+	expect(statusCode).toBe(200);
 	expect(Object.keys(response).includes('statusCode')).toBe(true);
 	expect(Object.keys(response).includes('message')).toBe(true);
 	expect(Object.keys(response).includes('payload')).toBe(true);
-	expect(response.statusCode).toBe(200);
 	expect(response.message).toBe('Pokemon retrieved successfully!');
 	expect(Array.isArray(response.payload)).toBe(true);
 	expect(response.payload.length).toBe(3);
@@ -133,12 +133,12 @@ test('All Pokemon were found.', async () => {
 test('Pokemon was found by ID.', async () => {
 	const { name, type } = generatePokemonData();
 	const pokemon = await Pokemon.create(name, type);
-	const response = await makeHttpRequest('GET', `/pokemon/${pokemon.getId()}`);
+	const [statusCode, response] = await makeHttpRequest('GET', `/pokemon/${pokemon.getId()}`);
 
+	expect(statusCode).toBe(200);
 	expect(Object.keys(response).includes('statusCode')).toBe(true);
 	expect(Object.keys(response).includes('message')).toBe(true);
 	expect(Object.keys(response).includes('payload')).toBe(true);
-	expect(response.statusCode).toBe(200);
 	expect(response.message).toBe('Pokemon retrieved successfully!');
 	expect(Object.keys(response.payload).includes('id')).toBe(true);
 	expect(Object.keys(response.payload).includes('name')).toBe(true);
@@ -152,12 +152,12 @@ test('Pokemon was updated successfully.', async () => {
 	const { name, type } = generatePokemonData();
 	const pokemon = await Pokemon.create(name, type);
 	const { name: newName } = generatePokemonData();
-	let response = await makeHttpRequest('PUT', `/pokemon/${pokemon.getId()}`, { name: newName });
+	let [statusCode, response] = await makeHttpRequest('PUT', `/pokemon/${pokemon.getId()}`, { name: newName });
 
+	expect(statusCode).toBe(200);
 	expect(Object.keys(response).includes('statusCode')).toBe(true);
 	expect(Object.keys(response).includes('message')).toBe(true);
 	expect(Object.keys(response).includes('payload')).toBe(true);
-	expect(response.statusCode).toBe(200);
 	expect(response.message).toBe('Pokemon updated successfully!');
 	expect(Object.keys(response.payload).includes('id')).toBe(true);
 	expect(Object.keys(response.payload).includes('name')).toBe(true);
@@ -167,7 +167,7 @@ test('Pokemon was updated successfully.', async () => {
 	expect(response.payload.type).toBe(type);
 	expect(response.payload.username).not.toBe(name);
 
-	response = await makeHttpRequest('GET', `/pokemon/${pokemon.getId()}`);
+	[statusCode, response] = await makeHttpRequest('GET', `/pokemon/${pokemon.getId()}`);
 
 	expect(response.payload.name).toBe(newName);
 	expect(response.payload.type).toBe(type);
@@ -176,12 +176,12 @@ test('Pokemon was updated successfully.', async () => {
 test('Pokemon was deleted successfully.', async () => {
 	const { name, type } = generatePokemonData();
 	const pokemon = await Pokemon.create(name, type);
-	let response = await makeHttpRequest('DELETE', `/pokemon/${pokemon.getId()}`);
+	let [statusCode, response] = await makeHttpRequest('DELETE', `/pokemon/${pokemon.getId()}`);
 
+	expect(statusCode).toBe(200);
 	expect(Object.keys(response).includes('statusCode')).toBe(true);
 	expect(Object.keys(response).includes('message')).toBe(true);
 	expect(Object.keys(response).includes('payload')).toBe(true);
-	expect(response.statusCode).toBe(200);
 	expect(response.message).toBe('Pokemon deleted successfully!');
 	expect(Object.keys(response.payload).includes('id')).toBe(true);
 	expect(Object.keys(response.payload).includes('name')).toBe(true);
@@ -190,7 +190,7 @@ test('Pokemon was deleted successfully.', async () => {
 	expect(response.payload.name).toBe(name);
 	expect(response.payload.type).toBe(type);
 
-	response = await makeHttpRequest('GET', `/pokemon/${pokemon.getId()}`);
+	[statusCode, response] = await makeHttpRequest('GET', `/pokemon/${pokemon.getId()}`);
 
 	expect(response.message).toBe('Could not retrieve Pokemon.');
 	expect(response.payload).toMatchObject({});

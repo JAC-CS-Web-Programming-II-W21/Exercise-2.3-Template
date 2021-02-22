@@ -120,13 +120,13 @@ test('HomeController handled a homepage request.', async () => {
 	expect(response.getPayload()).toMatchObject({});
 });
 
-test('ErrorController handled an invalid path request.', async () => {
+test('ErrorController handled an invalid request path.', async () => {
 	const request = new Request('GET', '/digimon');
 	const controller = new ErrorController(request, new Response());
 	const response = await controller.doAction();
 
 	expect(response.getStatusCode()).toBe(404);
-	expect(response.getMessage()).toBe('Invalid request!');
+	expect(response.getMessage()).toBe('Invalid request path!');
 	expect(response.getPayload()).toMatchObject({});
 });
 
@@ -135,8 +135,8 @@ test('PokemonController handled an invalid request method.', async () => {
 	const controller = new PokemonController(request, new Response());
 	const response = await controller.doAction();
 
-	expect(response.getStatusCode()).toBe(404);
-	expect(response.getMessage()).toBe('Invalid request!');
+	expect(response.getStatusCode()).toBe(405);
+	expect(response.getMessage()).toBe('Invalid request method!');
 	expect(response.getPayload()).toMatchObject({});
 });
 

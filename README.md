@@ -105,7 +105,7 @@ This class is responsible for encapsulating common logic among the concrete cont
   - `setAction`: This function is called by the concrete controller when the concrete controller is determining which method to call in its constructor. For example, if the concrete controller determines that the request method is `POST`, then it will set the action to `new`. Later, `new()` will be invoked by `doAction`.
   - `getAction`: Returns the function that is stored in `this.action`.
   - `doAction`: This function invokes the function that is stored in `this.action`. After calling `this.action()`, this function will return the `Response` object that was returned from calling `this.action()`.
-  - `error`: Calls `this.response.setResponse()`, sets the status code to `404` and the message to `Invalid request!`, and returns `this.response`.
+  - `error`: Returns `this.response`. The value of `this.response` will have already been set by the concrete controller.
 
 ### 🏡 Home Controller
 
@@ -121,7 +121,7 @@ In the future, this class will be responsible for constructing the `View` for th
 
 ### ⚠️ Error Controller
 
-This class is responsible for returning an error `Response` whenever the request method or path are invalid. The actual `error` function lives in the parent abstract `Controller` since all other concrete controllers can also set error responses.
+This class is responsible for returning an error `Response` whenever the request path is invalid. The actual `error` function lives in the parent abstract `Controller` since all other concrete controllers can also set error responses.
 
 - **Variables**
   - The concrete controllers have no instance variables of their own. They share all of their variables with the parent abstract `Controller`.
@@ -129,6 +129,7 @@ This class is responsible for returning an error `Response` whenever the request
   - `constructor`:
     - Takes in a `Request` and `Response` and passes them up to the parent abstract `Controller`.
     - Sets the `action` to `this.error`.
+    - Calls `this.response.setResponse()`, sets the status code to `404`, and the message to `Invalid request path!`.
 
 ### ⚡ Pokemon Controller
 
@@ -141,7 +142,10 @@ This class is responsible for invoking methods on the `Pokemon` model.
     - Takes in a `Request` and `Response` and passes them up to the parent abstract `Controller`.
     - The request's `requestMethod` is how we decide which function we need to invoke in this class. The `action` will be set to the function we want to invoke. For example, if we're dealing with a `POST` request, `action` will be `this.new`. See above table for reference.
       > 💡 Be careful **not to invoke** the function that you're passing into `this.setAction()`. You just want to pass the function that will be called later by `this.doAction()`.
-    - If the request method is not `POST`, `GET`, `PUT`, or `DELETE`, then set the `action` to `this.error`. Remember that the `error()` function lives in the parent abstract controller.
+    - If the request method is **not** `POST`, `GET`, `PUT`, or `DELETE`, then:
+      - Set the `action` to `this.error`.
+      - Call `this.response.setResponse()`, set the status code to `405`, and the message to `Invalid request method!`.
+    - Remember that the `error()` function lives in the parent abstract controller.
   - `new`:
     1. Calls the `create` method on the `Pokemon` model.
     2. Calls `this.response.setResponse()`, sets the appropriate message/payload, and returns `this.response`.
